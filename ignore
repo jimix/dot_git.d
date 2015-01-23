@@ -1,0 +1,19 @@
+## Emacs
+*~
+.#*
+
+## cscope
+cscope.files
+cscope.out
+cscope.in.out
+cscope.po.out
+
+## Mac HFS?
+.DS_Store
+
+## Xcode
+DerivedData/
+xcuserdata
+
+## CocoaPods
+Podfile.lock

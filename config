@@ -1,0 +1,112 @@
+[user]
+email = jimix@pobox.com
+name = Jimi Xenidis
+
+[alias]
+## This is a simple output that shows the status and name of the
+## current branch
+s = status --short --untracked-files=all --branch
+
+logs = log --abbrev-commit --pretty=oneline
+
+sub = submodule update --init --recursive
+mare = !git clone manticore-git:/git/Manticore/mare.git && (cd mare && git sub && \
+     git remote add github git@github.qualcomm.com:jxenidis/mare.git && git sub)
+
+## list all ignored files
+ignored = ls-files --others -i --exclude-standard
+
+## undo last commit
+rollback = reset --hard HEAD@{1}
+
+## branch name
+bn = rev-parse --abbrev-ref HEAD
+
+## absolute path to the root of the current git tree
+builddir = "!f() { echo $(readlink -f $(git rev-parse --show-toplevel)/../$1/$(git bn)); }; f"
+
+## absolute path to the root of the current git tree
+mkbdir = "!f() { mkdir -p $(git rev-parse --show-toplevel)/../$1/$(git bn); }; f"
+
+## absolute path to the root of the current git tree
+bdir = !git builddir build
+
+## absolute path to the root of the current git tree
+pdir = !git builddir perf
+
+## diff at the word level instead of line level
+wdiff = diff --word-diff
+
+## the next two assume you have upstream set.
+## like hg, outgoing lists commits that you have yet to push
+outgoing = "!f() { git log --reverse $1@{u}..$1; }; f"
+
+# another branch
+out = "!f() { git log --reverse --abbrev-commit --pretty=oneline $1@{u}..; }; f"
+
+# abbreviated log
+alog = log --reverse --abbrev-commit --pretty=oneline
+
+## the next two assume you have upstream set.
+## like hg, outgoing lists commits that you have yet to push
+incoming = "!f() { git log --reverse ..$1@{u}; }; f"
+
+# another branch
+in = "!f() { git log --reverse --abbrev-commit --pretty=oneline ..$1@{u}; }; f"
+
+## like outgoing but punts you into rebase
+ready = rebase --interactive @{u}
+
+## set parent, newer git this is --set-upstream-to $1
+#setupto = "!f() { git branch --set-upstream $(git symbolic-ref HEAD | cut -d / -f3-) $1; }; f"
+setupto = "!f() { git branch --set-upstream-to=$1; }; f"
+
+## I do this amend all the time
+amend = commit --amend
+## With signature
+samend = commit -s --amend
+
+## magical make, will cd into <git basedir>/../build/<branch> (see bdir above) and run make.
+## YES! If multiple -C options are specified, each is interpreted relative to the previous one
+## YES! we need to escape the quotes
+make = "!f() { make -C $(git bdir) \"$@\"; }; f"
+pmake = "!f() { make -C $(git pdir) \"$@\"; }; f"
+
+## show a file at a specific rev
+cat = "!f() { git show  $1:$2; }; f"
+
+## clobber!
+clobber = clean -xfd
+
+[core]
+  excludesfile = ~/.git.d/ignore
+
+[branch]
+## can't set these while you are mainainerxb
+#autosetupmerge = false
+#autosetuprebase = always
+
+[rebase]
+autosquash = true
+
+[pull]
+#rebase = true
+
+[color]
+	ui = auto
+
+[merge]
+	tool=tkdiff
+
+[http]
+	sslVerify=false
+
+## some aliases
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[push]
+	default = current
